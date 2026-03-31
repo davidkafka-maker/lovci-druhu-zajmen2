@@ -1,0 +1,2118 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lovci druhů zájmen</title>
+<style>
+  :root {
+    --bg: #f4f6fb;
+    --card: #ffffff;
+    --text: #111827;
+    --muted: #6b7280;
+    --good: #15803d;
+    --bad: #b91c1c;
+  }
+  * { box-sizing: border-box; }
+  body {
+    font-family: Arial, sans-serif;
+    text-align: center;
+    background: var(--bg);
+    margin: 0;
+    padding: 20px;
+    color: var(--text);
+  }
+  .wrap {
+    max-width: 760px;
+    margin: 0 auto;
+  }
+  .card {
+    background: var(--card);
+    border-radius: 18px;
+    padding: 18px;
+    box-shadow: 0 8px 22px rgba(0,0,0,.08);
+    margin-bottom: 14px;
+  }
+  h1 {
+    margin: 0 0 12px;
+    font-size: 32px;
+  }
+  .sub {
+    color: var(--muted);
+    margin-bottom: 16px;
+  }
+  .field {
+    width: min(320px, 92%);
+    padding: 12px 14px;
+    border: 1px solid #d1d5db;
+    border-radius: 12px;
+    font-size: 16px;
+    margin: 6px auto;
+    display: block;
+  }
+  .menu-btn, .small-btn {
+    border: none;
+    border-radius: 12px;
+    cursor: pointer;
+    font-weight: 700;
+  }
+  .menu-btn {
+    padding: 14px 18px;
+    font-size: 19px;
+    width: min(340px, 92%);
+    margin: 8px auto;
+    display: block;
+  }
+  .small-btn {
+    padding: 10px 14px;
+    font-size: 15px;
+    background: #1f2937;
+    color: #fff;
+  }
+  .mode-wrap {
+    margin: 14px 0;
+    display: flex;
+    justify-content: center;
+    gap: 14px;
+    flex-wrap: wrap;
+  }
+  .mode-label {
+    font-weight: 700;
+  }
+  .topbar {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 16px;
+    flex-wrap: wrap;
+    margin-bottom: 8px;
+  }
+  .timer {
+    font-size: 24px;
+    font-weight: 800;
+  }
+  #progress {
+    font-size: 20px;
+    font-weight: 800;
+    min-height: 52px;
+    white-space: pre-line;
+    margin-bottom: 8px;
+  }
+  .task {
+    color: var(--muted);
+    font-size: 16px;
+    font-weight: 700;
+    margin-bottom: 6px;
+  }
+  #sentence {
+    font-size: 28px;
+    line-height: 1.45;
+    max-width: 720px;
+    min-height: 120px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 10px auto 16px;
+    padding: 0 6px;
+  }
+  .highlight {
+    font-weight: 800;
+    text-decoration: underline;
+    color: #111827;
+    display: inline-block;
+    margin: 0 0.22em;
+    padding: 0 0.02em;
+  }
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(150px, 190px));
+    gap: 12px;
+    justify-content: center;
+    margin-top: 14px;
+  }
+  .btn {
+    padding: 16px 10px;
+    font-size: 18px;
+    border: none;
+    border-radius: 14px;
+    color: white;
+    cursor: pointer;
+    font-weight: 800;
+    transition: transform .08s ease, opacity .12s ease;
+  }
+  .btn:active {
+    transform: scale(.98);
+  }
+  .btn:disabled {
+    opacity: .78;
+    cursor: not-allowed;
+  }
+  #result {
+    font-size: 30px;
+    margin-top: 18px;
+    font-weight: 800;
+    white-space: pre-line;
+    min-height: 78px;
+  }
+  .good { color: var(--good); }
+  .bad { color: var(--bad); }
+  .hidden { display: none !important; }
+  .note {
+    font-size: 13px;
+    color: var(--muted);
+    margin-top: 8px;
+  }
+  .stats-box {
+    text-align: left;
+    max-width: 420px;
+    margin: 0 auto;
+    line-height: 1.8;
+    font-size: 18px;
+  }
+
+  #confetti-layer {
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    overflow: hidden;
+    z-index: 9999;
+  }
+  .confetti {
+    position: fixed;
+    top: -20px;
+    width: 12px;
+    height: 18px;
+    opacity: 0.95;
+    border-radius: 2px;
+    animation: confetti-fall linear forwards;
+  }
+  @keyframes confetti-fall {
+    from {
+      transform: translate3d(0, -10px, 0) rotate(0deg);
+      opacity: 1;
+    }
+    to {
+      transform: translate3d(var(--drift), 110vh, 0) rotate(var(--spin));
+      opacity: 0;
+    }
+  }
+
+
+@media (max-width: 600px) {
+  body {
+    padding: 6px;
+  }
+  .wrap {
+    max-width: 100%;
+  }
+  .card {
+    border-radius: 12px;
+    padding: 10px 9px;
+    margin-bottom: 8px;
+  }
+  h1 {
+    font-size: 22px;
+    line-height: 1.15;
+    margin-bottom: 8px;
+  }
+  .sub {
+    font-size: 14px;
+    margin-bottom: 10px;
+  }
+  .field {
+    width: 100%;
+    font-size: 16px;
+    padding: 11px;
+    margin: 4px auto;
+  }
+  .menu-btn {
+    width: 100%;
+    font-size: 16px;
+    padding: 11px 12px;
+    margin: 6px auto;
+    border-radius: 11px;
+  }
+  .small-btn {
+    font-size: 13px;
+    padding: 8px 10px;
+    border-radius: 10px;
+  }
+  .topbar {
+    gap: 8px;
+    margin-bottom: 4px;
+  }
+  .timer {
+    font-size: 18px;
+  }
+  #progress {
+    font-size: 16px;
+    min-height: 0;
+    margin-bottom: 6px;
+    line-height: 1.25;
+  }
+  #sentence {
+    font-size: 28px;
+    line-height: 1.3;
+    min-height: 64px;
+    margin: 6px auto 10px;
+    padding: 0 2px;
+    display: block;
+    text-align: center;
+    white-space: normal;
+    word-break: normal;
+    overflow-wrap: normal;
+    hyphens: none;
+  }
+  .highlight {
+    margin: 0 0.10em;
+  }
+  .grid {
+    grid-template-columns: repeat(2, minmax(135px, 1fr));
+    gap: 8px;
+    width: 100%;
+    justify-content: center;
+    margin-top: 8px;
+  }
+  .btn {
+    width: 100%;
+    font-size: 18px;
+    padding: 10px 6px;
+    border-radius: 10px;
+  }
+  #result {
+    font-size: 32px;
+    min-height: 72px;
+    margin-top: 10px;
+    line-height: 1.25;
+    font-weight: 900;
+    letter-spacing: 0.3px;
+  }
+  #nextBtn {
+    margin-top: 8px !important;
+    font-size: 15px;
+    padding: 10px 12px;
+  }
+  .stats-box {
+    font-size: 15px;
+    line-height: 1.45;
+  }
+  .note {
+    font-size: 11px;
+    margin-top: 6px;
+  }
+  .win { font-size: 36px; }
+  .correct-answer { font-size: 28px; }
+  .explain { font-size: 22px; }
+
+}
+
+
+.win { font-size: 34px; }
+.correct-answer { font-size: 26px; }
+.explain { font-size: 20px; }
+</style>
+</head>
+<body>
+<div id="confetti-layer" aria-hidden="true"></div>
+<div class="wrap">
+
+  <div id="login" class="card">
+    <h1>Lovci druhů zájmen</h1>
+    <div class="sub">Vyplň údaje a začni hrát.</div>
+
+    <div id="rememberBox" class="hidden">
+      <div class="card" style="box-shadow:none;border:1px solid #e5e7eb;">
+        <div style="font-weight:700;margin-bottom:10px;">Pokračovat jako:</div>
+        <div id="rememberText" style="font-size:20px;font-weight:800;"></div>
+        <button class="menu-btn" style="background:#2563eb;color:#fff;" onclick="useRemembered()">POKRAČOVAT</button>
+        <button class="menu-btn" style="background:#e5e7eb;color:#111827;" onclick="showEditProfile()">ZMĚNIT ÚDAJE</button>
+      </div>
+    </div>
+
+    <div id="formBox">
+      <input id="name" class="field" placeholder="Jméno">
+      <input id="surname" class="field" placeholder="Příjmení">
+      <input id="class" class="field" placeholder="Třída">
+      <div class="note">Třídu piš velkými písmeny a čísly bez teček, např. 3A.</div>
+
+      <button class="menu-btn" style="background:#111827;color:#fff;" onclick="start()">ZAČÍT HRÁT</button>
+    </div>
+  </div>
+
+  <div id="game" class="card hidden">
+    <div class="topbar">
+      <div class="timer">Čas: <span id="time">20</span></div>
+      <button class="small-btn" onclick="menu()">MENU</button>
+    </div>
+
+    <div id="progress"></div>
+    <div class="task">Urči druh zvýrazněného zájmena.</div>
+    <div id="sentence"></div>
+
+    <div class="grid" id="grid"></div>
+    <div id="result"></div>
+    <button id="nextBtn" class="menu-btn hidden" style="background:#2563eb;color:#fff;margin-top:10px;">DALŠÍ</button>
+  </div>
+
+  <div id="statsScreen" class="card hidden">
+    <h1>Statistika</h1>
+    <div class="stats-box" id="statsText"></div>
+    <button class="menu-btn" style="background:#111827;color:#fff;" onclick="backToLogin()">ZPĚT</button>
+  </div>
+
+</div>
+
+<script>
+let db = [
+  {
+    "sentence": "Viděl jsem ho stát u dveří.",
+    "highlightedWord": "ho",
+    "answerNumber": 1
+  },
+  {
+    "sentence": "Oni se na nás dívali velmi zvláštně.",
+    "highlightedWord": "Oni",
+    "answerNumber": 1
+  },
+  {
+    "sentence": "Bez něj bych to nezvládl.",
+    "highlightedWord": "něj",
+    "answerNumber": 1
+  },
+  {
+    "sentence": "Řekla mi to úplně potichu.",
+    "highlightedWord": "mi",
+    "answerNumber": 1
+  },
+  {
+    "sentence": "Mně se to zdálo podezřelé.",
+    "highlightedWord": "Mně",
+    "answerNumber": 1
+  },
+  {
+    "sentence": "S tebou je vždycky legrace.",
+    "highlightedWord": "tebou",
+    "answerNumber": 1
+  },
+  {
+    "sentence": "Nechal si to pro sebe.",
+    "highlightedWord": "si",
+    "answerNumber": 1
+  },
+  {
+    "sentence": "Na nás se úplně zapomnělo.",
+    "highlightedWord": "nás",
+    "answerNumber": 1
+  },
+  {
+    "sentence": "Vzal ji za ruku.",
+    "highlightedWord": "ji",
+    "answerNumber": 1
+  },
+  {
+    "sentence": "O něm se hodně mluvilo.",
+    "highlightedWord": "něm",
+    "answerNumber": 1
+  },
+  {
+    "sentence": "Podíval se na mě překvapeně.",
+    "highlightedWord": "mě",
+    "answerNumber": 1
+  },
+  {
+    "sentence": "Mě to vůbec nepřekvapilo.",
+    "highlightedWord": "Mě",
+    "answerNumber": 1
+  },
+  {
+    "sentence": "Bez vás bychom to nedokázali.",
+    "highlightedWord": "vás",
+    "answerNumber": 1
+  },
+  {
+    "sentence": "Nám to připadalo zvláštní.",
+    "highlightedWord": "Nám",
+    "answerNumber": 1
+  },
+  {
+    "sentence": "O tobě už slyšeli všichni.",
+    "highlightedWord": "tobě",
+    "answerNumber": 1
+  },
+  {
+    "sentence": "Její přístup mě zarazil.",
+    "highlightedWord": "mě",
+    "answerNumber": 1
+  },
+  {
+    "sentence": "Zavolali jim ještě večer.",
+    "highlightedWord": "jim",
+    "answerNumber": 1
+  },
+  {
+    "sentence": "S nimi se nedalo domluvit.",
+    "highlightedWord": "nimi",
+    "answerNumber": 1
+  },
+  {
+    "sentence": "Tebe se to vůbec netýká.",
+    "highlightedWord": "Tebe",
+    "answerNumber": 1
+  },
+  {
+    "sentence": "U nás je dnes klid.",
+    "highlightedWord": "nás",
+    "answerNumber": 1
+  },
+  {
+    "sentence": "Bez tebe by to nemělo smysl.",
+    "highlightedWord": "tebe",
+    "answerNumber": 1
+  },
+  {
+    "sentence": "Nad námi se stahovala mračna.",
+    "highlightedWord": "námi",
+    "answerNumber": 1
+  },
+  {
+    "sentence": "Jemu to ale nikdo neřekl.",
+    "highlightedWord": "Jemu",
+    "answerNumber": 1
+  },
+  {
+    "sentence": "Čekali na ně před školou.",
+    "highlightedWord": "ně",
+    "answerNumber": 1
+  },
+  {
+    "sentence": "Mně se to zdálo jako omyl.",
+    "highlightedWord": "Mně",
+    "answerNumber": 1
+  },
+  {
+    "sentence": "S ní se cítil bezpečně.",
+    "highlightedWord": "ní",
+    "answerNumber": 1
+  },
+  {
+    "sentence": "O vás se říká ledacos.",
+    "highlightedWord": "vás",
+    "answerNumber": 1
+  },
+  {
+    "sentence": "Nás se nikdo neptal.",
+    "highlightedWord": "Nás",
+    "answerNumber": 1
+  },
+  {
+    "sentence": "Bez nich bychom byli ztraceni.",
+    "highlightedWord": "nich",
+    "answerNumber": 1
+  },
+  {
+    "sentence": "Tobě to ale slušelo.",
+    "highlightedWord": "Tobě",
+    "answerNumber": 1
+  },
+  {
+    "sentence": "Je to mezi námi.",
+    "highlightedWord": "námi",
+    "answerNumber": 1
+  },
+  {
+    "sentence": "Mě by to nikdy nenapadlo.",
+    "highlightedWord": "Mě",
+    "answerNumber": 1
+  },
+  {
+    "sentence": "Jich se to netýká.",
+    "highlightedWord": "Jich",
+    "answerNumber": 1
+  },
+  {
+    "sentence": "Bez něj to nemělo cenu.",
+    "highlightedWord": "něj",
+    "answerNumber": 1
+  },
+  {
+    "sentence": "O mně si mysleli své.",
+    "highlightedWord": "mně",
+    "answerNumber": 1
+  },
+  {
+    "sentence": "Na tebe spoléháme.",
+    "highlightedWord": "tebe",
+    "answerNumber": 1
+  },
+  {
+    "sentence": "S vámi to bylo vždy složité.",
+    "highlightedWord": "vámi",
+    "answerNumber": 1
+  },
+  {
+    "sentence": "Nám to připadalo směšné.",
+    "highlightedWord": "Nám",
+    "answerNumber": 1
+  },
+  {
+    "sentence": "Je to pro ně důležité.",
+    "highlightedWord": "ně",
+    "answerNumber": 1
+  },
+  {
+    "sentence": "Mně se to nelíbí.",
+    "highlightedWord": "Mně",
+    "answerNumber": 1
+  },
+  {
+    "sentence": "Rychle se otočil a odešel.",
+    "highlightedWord": "se",
+    "answerNumber": 1
+  },
+  {
+    "sentence": "V tom okamžiku se začal smát.",
+    "highlightedWord": "se",
+    "answerNumber": 1
+  },
+  {
+    "sentence": "Na chodbě se mluvilo velmi potichu.",
+    "highlightedWord": "se",
+    "answerNumber": 1
+  },
+  {
+    "sentence": "Najednou se všichni zarazili.",
+    "highlightedWord": "se",
+    "answerNumber": 1
+  },
+  {
+    "sentence": "Po chvíli se uklidnil.",
+    "highlightedWord": "se",
+    "answerNumber": 1
+  },
+  {
+    "sentence": "Bez jeho pomoci bych to nezvládl.",
+    "highlightedWord": "jeho",
+    "answerNumber": 2
+  },
+  {
+    "sentence": "Mluvili jsme o jeho rozhodnutí.",
+    "highlightedWord": "jeho",
+    "answerNumber": 2
+  },
+  {
+    "sentence": "Navštívili jsme jeho přítele.",
+    "highlightedWord": "jeho",
+    "answerNumber": 2
+  },
+  {
+    "sentence": "S jeho přístupem nesouhlasím.",
+    "highlightedWord": "jeho",
+    "answerNumber": 2
+  },
+  {
+    "sentence": "K jeho návrhu se nikdo nevyjádřil.",
+    "highlightedWord": "jeho",
+    "answerNumber": 2
+  },
+  {
+    "sentence": "Bez její podpory by to nedokázala.",
+    "highlightedWord": "její",
+    "answerNumber": 2
+  },
+  {
+    "sentence": "O její práci se hodně mluvilo.",
+    "highlightedWord": "její",
+    "answerNumber": 2
+  },
+  {
+    "sentence": "Viděl jsem její sestru na nádraží.",
+    "highlightedWord": "její",
+    "answerNumber": 2
+  },
+  {
+    "sentence": "S její odpovědí jsem nebyl spokojen.",
+    "highlightedWord": "její",
+    "answerNumber": 2
+  },
+  {
+    "sentence": "K její žádosti se zatím nevyjádřili.",
+    "highlightedWord": "její",
+    "answerNumber": 2
+  },
+  {
+    "sentence": "Bez jejich svolení jsme nic nepodnikli.",
+    "highlightedWord": "jejich",
+    "answerNumber": 2
+  },
+  {
+    "sentence": "Mluvili jsme o jejich plánech.",
+    "highlightedWord": "jejich",
+    "answerNumber": 2
+  },
+  {
+    "sentence": "Viděl jsem jejich dům z dálky.",
+    "highlightedWord": "jejich",
+    "answerNumber": 2
+  },
+  {
+    "sentence": "S jejich přístupem nesouhlasím.",
+    "highlightedWord": "jejich",
+    "answerNumber": 2
+  },
+  {
+    "sentence": "K jejich návrhu se nikdo nepřidal.",
+    "highlightedWord": "jejich",
+    "answerNumber": 2
+  },
+  {
+    "sentence": "Bez mého souhlasu to neuděláš.",
+    "highlightedWord": "mého",
+    "answerNumber": 2
+  },
+  {
+    "sentence": "O mém rozhodnutí už víš.",
+    "highlightedWord": "mém",
+    "answerNumber": 2
+  },
+  {
+    "sentence": "Viděl jsi mého bratra?",
+    "highlightedWord": "mého",
+    "answerNumber": 2
+  },
+  {
+    "sentence": "S mým názorem nemusíš souhlasit.",
+    "highlightedWord": "mým",
+    "answerNumber": 2
+  },
+  {
+    "sentence": "K mému překvapení se nic nestalo.",
+    "highlightedWord": "mému",
+    "answerNumber": 2
+  },
+  {
+    "sentence": "Bez tvého vysvětlení tomu nerozumím.",
+    "highlightedWord": "tvého",
+    "answerNumber": 2
+  },
+  {
+    "sentence": "O tvém nápadu jsme už mluvili.",
+    "highlightedWord": "tvém",
+    "answerNumber": 2
+  },
+  {
+    "sentence": "Viděl jsem tvého kamaráda.",
+    "highlightedWord": "tvého",
+    "answerNumber": 2
+  },
+  {
+    "sentence": "S tvým přístupem nesouhlasím.",
+    "highlightedWord": "tvým",
+    "answerNumber": 2
+  },
+  {
+    "sentence": "K tvé otázce se vrátíme později.",
+    "highlightedWord": "tvé",
+    "answerNumber": 2
+  },
+  {
+    "sentence": "Bez našeho vědomí to udělali.",
+    "highlightedWord": "našeho",
+    "answerNumber": 2
+  },
+  {
+    "sentence": "O našem plánu se dozvěděli všichni.",
+    "highlightedWord": "našem",
+    "answerNumber": 2
+  },
+  {
+    "sentence": "Viděl jsem našeho učitele venku.",
+    "highlightedWord": "našeho",
+    "answerNumber": 2
+  },
+  {
+    "sentence": "S naším řešením nesouhlasili.",
+    "highlightedWord": "naším",
+    "answerNumber": 2
+  },
+  {
+    "sentence": "K naší žádosti se nikdo nevyjádřil.",
+    "highlightedWord": "naší",
+    "answerNumber": 2
+  },
+  {
+    "sentence": "Bez vašeho souhlasu to nepůjde.",
+    "highlightedWord": "vašeho",
+    "answerNumber": 2
+  },
+  {
+    "sentence": "O vašem návrhu jsme diskutovali.",
+    "highlightedWord": "vašem",
+    "answerNumber": 2
+  },
+  {
+    "sentence": "Viděl jsem vašeho kolegu.",
+    "highlightedWord": "vašeho",
+    "answerNumber": 2
+  },
+  {
+    "sentence": "S vaším rozhodnutím nesouhlasím.",
+    "highlightedWord": "vaším",
+    "answerNumber": 2
+  },
+  {
+    "sentence": "K vaší připomínce se vrátíme.",
+    "highlightedWord": "vaší",
+    "answerNumber": 2
+  },
+  {
+    "sentence": "Bez jejich pomoci by to nešlo.",
+    "highlightedWord": "jejich",
+    "answerNumber": 2
+  },
+  {
+    "sentence": "O její odpovědi jsme pochybovali.",
+    "highlightedWord": "její",
+    "answerNumber": 2
+  },
+  {
+    "sentence": "S jeho názorem jsme nesouhlasili.",
+    "highlightedWord": "jeho",
+    "answerNumber": 2
+  },
+  {
+    "sentence": "K naší radosti vše dobře dopadlo.",
+    "highlightedWord": "naší",
+    "answerNumber": 2
+  },
+  {
+    "sentence": "Bez tvého přičinění by to nevyšlo.",
+    "highlightedWord": "tvého",
+    "answerNumber": 2
+  },
+  {
+    "sentence": "Vzal si svůj kabát a odešel.",
+    "highlightedWord": "svůj",
+    "answerNumber": 2
+  },
+  {
+    "sentence": "Bez svého telefonu nikam nechodí.",
+    "highlightedWord": "svého",
+    "answerNumber": 2
+  },
+  {
+    "sentence": "K svému překvapení nic nenašel.",
+    "highlightedWord": "svému",
+    "answerNumber": 2
+  },
+  {
+    "sentence": "Se svým rozhodnutím byl spokojen.",
+    "highlightedWord": "svým",
+    "answerNumber": 2
+  },
+  {
+    "sentence": "O své chybě raději nemluvil.",
+    "highlightedWord": "své",
+    "answerNumber": 2
+  },
+  {
+    "sentence": "Ten člověk tam stál už dlouho.",
+    "highlightedWord": "Ten",
+    "answerNumber": 3
+  },
+  {
+    "sentence": "Bez toho vysvětlení tomu nerozumím.",
+    "highlightedWord": "toho",
+    "answerNumber": 3
+  },
+  {
+    "sentence": "K tomu závěru dospěl až později.",
+    "highlightedWord": "tomu",
+    "answerNumber": 3
+  },
+  {
+    "sentence": "Viděl jsem ten film už dvakrát.",
+    "highlightedWord": "ten",
+    "answerNumber": 3
+  },
+  {
+    "sentence": "O tom problému se hodně mluvilo.",
+    "highlightedWord": "tom",
+    "answerNumber": 3
+  },
+  {
+    "sentence": "Tím způsobem to ale nepůjde.",
+    "highlightedWord": "Tím",
+    "answerNumber": 3
+  },
+  {
+    "sentence": "Na ten okamžik nikdy nezapomenu.",
+    "highlightedWord": "ten",
+    "answerNumber": 3
+  },
+  {
+    "sentence": "Všiml sis toho detailu?",
+    "highlightedWord": "toho",
+    "answerNumber": 3
+  },
+  {
+    "sentence": "Přizpůsobil se tomu prostředí rychle.",
+    "highlightedWord": "tomu",
+    "answerNumber": 3
+  },
+  {
+    "sentence": "Zabýval se tím tématem celé roky.",
+    "highlightedWord": "tím",
+    "answerNumber": 3
+  },
+  {
+    "sentence": "Tento přístup se ukázal jako chybný.",
+    "highlightedWord": "Tento",
+    "answerNumber": 3
+  },
+  {
+    "sentence": "Bez tohoto kroku by to nešlo.",
+    "highlightedWord": "tohoto",
+    "answerNumber": 3
+  },
+  {
+    "sentence": "K tomuto řešení dospěli společně.",
+    "highlightedWord": "tomuto",
+    "answerNumber": 3
+  },
+  {
+    "sentence": "Viděli jsme tento dům už dříve.",
+    "highlightedWord": "tento",
+    "answerNumber": 3
+  },
+  {
+    "sentence": "O tomto návrhu se bude hlasovat.",
+    "highlightedWord": "tomto",
+    "answerNumber": 3
+  },
+  {
+    "sentence": "Tímto způsobem to uzavřeme.",
+    "highlightedWord": "Tímto",
+    "answerNumber": 3
+  },
+  {
+    "sentence": "Na tento problém neexistuje jednoduché řešení.",
+    "highlightedWord": "tento",
+    "answerNumber": 3
+  },
+  {
+    "sentence": "Všimli si tohoto nedostatku.",
+    "highlightedWord": "tohoto",
+    "answerNumber": 3
+  },
+  {
+    "sentence": "Přizpůsobil se tomuto systému.",
+    "highlightedWord": "tomuto",
+    "answerNumber": 3
+  },
+  {
+    "sentence": "Zabýval se tímto případem dlouho.",
+    "highlightedWord": "tímto",
+    "answerNumber": 3
+  },
+  {
+    "sentence": "Takový přístup nemohu přijmout.",
+    "highlightedWord": "Takový",
+    "answerNumber": 3
+  },
+  {
+    "sentence": "Bez takového důkazu to nelze potvrdit.",
+    "highlightedWord": "takového",
+    "answerNumber": 3
+  },
+  {
+    "sentence": "K takovému chování neměl důvod.",
+    "highlightedWord": "takovému",
+    "answerNumber": 3
+  },
+  {
+    "sentence": "Viděl jsem takový případ už dříve.",
+    "highlightedWord": "takový",
+    "answerNumber": 3
+  },
+  {
+    "sentence": "O takovém řešení se neuvažovalo.",
+    "highlightedWord": "takovém",
+    "answerNumber": 3
+  },
+  {
+    "sentence": "Zabýval se takovým problémem poprvé.",
+    "highlightedWord": "takovým",
+    "answerNumber": 3
+  },
+  {
+    "sentence": "Na takový výsledek nikdo nečekal.",
+    "highlightedWord": "takový",
+    "answerNumber": 3
+  },
+  {
+    "sentence": "Všiml si takového detailu jen on.",
+    "highlightedWord": "takového",
+    "answerNumber": 3
+  },
+  {
+    "sentence": "Přizpůsobil se takovému stylu rychle.",
+    "highlightedWord": "takovému",
+    "answerNumber": 3
+  },
+  {
+    "sentence": "S takovým přístupem nesouhlasím.",
+    "highlightedWord": "takovým",
+    "answerNumber": 3
+  },
+  {
+    "sentence": "Týž člověk se objevil i dnes.",
+    "highlightedWord": "Týž",
+    "answerNumber": 3
+  },
+  {
+    "sentence": "Bez téhož argumentu by to nešlo.",
+    "highlightedWord": "téhož",
+    "answerNumber": 3
+  },
+  {
+    "sentence": "K témuž závěru dospěli nezávisle.",
+    "highlightedWord": "témuž",
+    "answerNumber": 3
+  },
+  {
+    "sentence": "Viděl jsem týž film znovu.",
+    "highlightedWord": "týž",
+    "answerNumber": 3
+  },
+  {
+    "sentence": "O témž problému jsme mluvili včera.",
+    "highlightedWord": "témž",
+    "answerNumber": 3
+  },
+  {
+    "sentence": "Zabýval se týmž tématem už dříve.",
+    "highlightedWord": "týmž",
+    "answerNumber": 3
+  },
+  {
+    "sentence": "Tentýž muž stál u dveří.",
+    "highlightedWord": "Tentýž",
+    "answerNumber": 3
+  },
+  {
+    "sentence": "Všimli si téhož jevu.",
+    "highlightedWord": "téhož",
+    "answerNumber": 3
+  },
+  {
+    "sentence": "Přizpůsobil se témuž systému.",
+    "highlightedWord": "témuž",
+    "answerNumber": 3
+  },
+  {
+    "sentence": "S týmž názorem přišli i ostatní.",
+    "highlightedWord": "týmž",
+    "answerNumber": 3
+  },
+  {
+    "sentence": "Onen muž stál opodál a mlčky nás pozoroval.",
+    "highlightedWord": "Onen",
+    "answerNumber": 3
+  },
+  {
+    "sentence": "Bez onoho důkazu by to nešlo prokázat.",
+    "highlightedWord": "onoho",
+    "answerNumber": 3
+  },
+  {
+    "sentence": "K onomu závěru dospěli až po dlouhé debatě.",
+    "highlightedWord": "onomu",
+    "answerNumber": 3
+  },
+  {
+    "sentence": "Vzpomněl si na onen okamžik z dětství.",
+    "highlightedWord": "onen",
+    "answerNumber": 3
+  },
+  {
+    "sentence": "O onom případu se dodnes vedou spory.",
+    "highlightedWord": "onom",
+    "answerNumber": 3
+  },
+  {
+    "sentence": "Udělal to sám bez cizí pomoci.",
+    "highlightedWord": "sám",
+    "answerNumber": 3
+  },
+  {
+    "sentence": "Celou situaci zvládla sama.",
+    "highlightedWord": "sama",
+    "answerNumber": 3
+  },
+  {
+    "sentence": "Dítě zůstalo doma samo.",
+    "highlightedWord": "samo",
+    "answerNumber": 3
+  },
+  {
+    "sentence": "Byl tam úplně sám.",
+    "highlightedWord": "sám",
+    "answerNumber": 3
+  },
+  {
+    "sentence": "Sama o sobě nikdy nepochybovala.",
+    "highlightedWord": "Sama",
+    "answerNumber": 3
+  },
+  {
+    "sentence": "Řekl si to sám pro sebe.",
+    "highlightedWord": "sám",
+    "answerNumber": 3
+  },
+  {
+    "sentence": "Udělali to sami bez pomoci.",
+    "highlightedWord": "sami",
+    "answerNumber": 3
+  },
+  {
+    "sentence": "Sám ředitel přišel mezi studenty.",
+    "highlightedWord": "Sám",
+    "answerNumber": 3
+  },
+  {
+    "sentence": "Dokázala to sama i bez rady ostatních.",
+    "highlightedWord": "sama",
+    "answerNumber": 3
+  },
+  {
+    "sentence": "Sami rozhodli o svém dalším postupu.",
+    "highlightedWord": "Sami",
+    "answerNumber": 3
+  },
+  {
+    "sentence": "Kdo přišel jako první?",
+    "highlightedWord": "Kdo",
+    "answerNumber": 4
+  },
+  {
+    "sentence": "Koho jsi tam vlastně viděl?",
+    "highlightedWord": "Koho",
+    "answerNumber": 4
+  },
+  {
+    "sentence": "Komu jsi to včera řekl?",
+    "highlightedWord": "Komu",
+    "answerNumber": 4
+  },
+  {
+    "sentence": "Kdo z vás tomu opravdu rozumí?",
+    "highlightedWord": "Kdo",
+    "answerNumber": 4
+  },
+  {
+    "sentence": "Kým byl ten člověk ve skutečnosti?",
+    "highlightedWord": "Kým",
+    "answerNumber": 4
+  },
+  {
+    "sentence": "Co se tady vlastně stalo?",
+    "highlightedWord": "Co",
+    "answerNumber": 4
+  },
+  {
+    "sentence": "Čeho se tolik bojíš?",
+    "highlightedWord": "Čeho",
+    "answerNumber": 4
+  },
+  {
+    "sentence": "Čemu se máme věnovat nejdříve?",
+    "highlightedWord": "Čemu",
+    "answerNumber": 4
+  },
+  {
+    "sentence": "Co tě na tom nejvíc překvapilo?",
+    "highlightedWord": "Co",
+    "answerNumber": 4
+  },
+  {
+    "sentence": "Čím to chceš dokázat?",
+    "highlightedWord": "Čím",
+    "answerNumber": 4
+  },
+  {
+    "sentence": "Který z těch návrhů je nejlepší?",
+    "highlightedWord": "Který",
+    "answerNumber": 4
+  },
+  {
+    "sentence": "Kterého studenta vyvolal učitel?",
+    "highlightedWord": "Kterého",
+    "answerNumber": 4
+  },
+  {
+    "sentence": "Kterému řešení dáváte přednost?",
+    "highlightedWord": "Kterému",
+    "answerNumber": 4
+  },
+  {
+    "sentence": "Který film jsi viděl naposledy?",
+    "highlightedWord": "Který",
+    "answerNumber": 4
+  },
+  {
+    "sentence": "O kterém problému jste mluvili?",
+    "highlightedWord": "kterém",
+    "answerNumber": 4
+  },
+  {
+    "sentence": "Jaký přístup bys zvolil ty?",
+    "highlightedWord": "Jaký",
+    "answerNumber": 4
+  },
+  {
+    "sentence": "Jakého výsledku chcete dosáhnout?",
+    "highlightedWord": "Jakého",
+    "answerNumber": 4
+  },
+  {
+    "sentence": "Jakému názoru věříš nejvíc?",
+    "highlightedWord": "Jakému",
+    "answerNumber": 4
+  },
+  {
+    "sentence": "Jaký důvod tě k tomu vedl?",
+    "highlightedWord": "Jaký",
+    "answerNumber": 4
+  },
+  {
+    "sentence": "O jakém tématu budeš mluvit?",
+    "highlightedWord": "jakém",
+    "answerNumber": 4
+  },
+  {
+    "sentence": "Muž, který tam stál, odešel.",
+    "highlightedWord": "který",
+    "answerNumber": 5
+  },
+  {
+    "sentence": "Student, kterého vyvolal učitel, odpověděl správně.",
+    "highlightedWord": "kterého",
+    "answerNumber": 5
+  },
+  {
+    "sentence": "Člověk, kterému věřil, ho zklamal.",
+    "highlightedWord": "kterému",
+    "answerNumber": 5
+  },
+  {
+    "sentence": "Film, který jsme viděli, byl výborný.",
+    "highlightedWord": "který",
+    "answerNumber": 5
+  },
+  {
+    "sentence": "Dům, o kterém mluvil, už nestojí.",
+    "highlightedWord": "kterém",
+    "answerNumber": 5
+  },
+  {
+    "sentence": "Způsob, kterým to vysvětlil, byl srozumitelný.",
+    "highlightedWord": "kterým",
+    "answerNumber": 5
+  },
+  {
+    "sentence": "Lidé, kteří tam přišli, čekali dlouho.",
+    "highlightedWord": "kteří",
+    "answerNumber": 5
+  },
+  {
+    "sentence": "Otázky, kterých se to týká, jsou složité.",
+    "highlightedWord": "kterých",
+    "answerNumber": 5
+  },
+  {
+    "sentence": "Studenti, kterým to vysvětlil, to pochopili.",
+    "highlightedWord": "kterým",
+    "answerNumber": 5
+  },
+  {
+    "sentence": "Věci, o kterých mluvíš, jsou důležité.",
+    "highlightedWord": "kterých",
+    "answerNumber": 5
+  },
+  {
+    "sentence": "Muž, jenž tam stál, byl nervózní.",
+    "highlightedWord": "jenž",
+    "answerNumber": 5
+  },
+  {
+    "sentence": "Dům, jehož majitel odešel, chátrá.",
+    "highlightedWord": "jehož",
+    "answerNumber": 5
+  },
+  {
+    "sentence": "Člověk, jemuž pomohl, mu poděkoval.",
+    "highlightedWord": "jemuž",
+    "answerNumber": 5
+  },
+  {
+    "sentence": "Film, jenž jsme viděli, byl zajímavý.",
+    "highlightedWord": "jenž",
+    "answerNumber": 5
+  },
+  {
+    "sentence": "Případ, o němž mluvili, byl složitý.",
+    "highlightedWord": "němž",
+    "answerNumber": 5
+  },
+  {
+    "sentence": "Způsob, jímž to udělal, byl neobvyklý.",
+    "highlightedWord": "jímž",
+    "answerNumber": 5
+  },
+  {
+    "sentence": "Žena, již jsme potkali, se usmála.",
+    "highlightedWord": "již",
+    "answerNumber": 5
+  },
+  {
+    "sentence": "Otázky, jichž se to týká, jsou náročné.",
+    "highlightedWord": "jichž",
+    "answerNumber": 5
+  },
+  {
+    "sentence": "Lidé, jimž pomohl, mu děkovali.",
+    "highlightedWord": "jimž",
+    "answerNumber": 5
+  },
+  {
+    "sentence": "Prostředky, jimiž to dokázal, byly omezené.",
+    "highlightedWord": "jimiž",
+    "answerNumber": 5
+  },
+  {
+    "sentence": "Kdo pracuje, ten má výsledky.",
+    "highlightedWord": "Kdo",
+    "answerNumber": 5
+  },
+  {
+    "sentence": "Koho se to týká, ať se ozve.",
+    "highlightedWord": "Koho",
+    "answerNumber": 5
+  },
+  {
+    "sentence": "Komu pomůžeš, ten ti to vrátí.",
+    "highlightedWord": "Komu",
+    "answerNumber": 5
+  },
+  {
+    "sentence": "Kdo přijde pozdě, nebude vpuštěn.",
+    "highlightedWord": "Kdo",
+    "answerNumber": 5
+  },
+  {
+    "sentence": "Kým byl ten člověk, to nikdo nevěděl.",
+    "highlightedWord": "Kým",
+    "answerNumber": 5
+  },
+  {
+    "sentence": "To, co říkáš, dává smysl.",
+    "highlightedWord": "co",
+    "answerNumber": 5
+  },
+  {
+    "sentence": "To, čeho se bojíš, není skutečné.",
+    "highlightedWord": "čeho",
+    "answerNumber": 5
+  },
+  {
+    "sentence": "To, čemu věříš, tě ovlivňuje.",
+    "highlightedWord": "čemu",
+    "answerNumber": 5
+  },
+  {
+    "sentence": "To, co se stalo, nás překvapilo.",
+    "highlightedWord": "co",
+    "answerNumber": 5
+  },
+  {
+    "sentence": "To, čím se zabýváš, je důležité.",
+    "highlightedWord": "čím",
+    "answerNumber": 5
+  },
+  {
+    "sentence": "Ten, který odešel první, měl pravdu.",
+    "highlightedWord": "který",
+    "answerNumber": 5
+  },
+  {
+    "sentence": "Ti, kteří to zvládli, si odpočinuli.",
+    "highlightedWord": "kteří",
+    "answerNumber": 5
+  },
+  {
+    "sentence": "Ty, kterých se to týká, ať zůstanou.",
+    "highlightedWord": "kterých",
+    "answerNumber": 5
+  },
+  {
+    "sentence": "Těm, kterým to vadí, se omlouvám.",
+    "highlightedWord": "kterým",
+    "answerNumber": 5
+  },
+  {
+    "sentence": "Ti, o kterých mluvíš, tu nejsou.",
+    "highlightedWord": "kterých",
+    "answerNumber": 5
+  },
+  {
+    "sentence": "Ten, jenž to řekl, měl pravdu.",
+    "highlightedWord": "jenž",
+    "answerNumber": 5
+  },
+  {
+    "sentence": "Muž, jehož jméno neznáme, odešel.",
+    "highlightedWord": "jehož",
+    "answerNumber": 5
+  },
+  {
+    "sentence": "Člověk, jemuž důvěřoval, ho zklamal.",
+    "highlightedWord": "jemuž",
+    "answerNumber": 5
+  },
+  {
+    "sentence": "Dům, v němž bydlel, byl starý.",
+    "highlightedWord": "němž",
+    "answerNumber": 5
+  },
+  {
+    "sentence": "Nástroj, jímž to vytvořil, byl jednoduchý.",
+    "highlightedWord": "jímž",
+    "answerNumber": 5
+  },
+  {
+    "sentence": "Někdo zaklepal na dveře.",
+    "highlightedWord": "Někdo",
+    "answerNumber": 6
+  },
+  {
+    "sentence": "Viděl jsi někoho na chodbě?",
+    "highlightedWord": "někoho",
+    "answerNumber": 6
+  },
+  {
+    "sentence": "Někomu to určitě vadilo.",
+    "highlightedWord": "Někomu",
+    "answerNumber": 6
+  },
+  {
+    "sentence": "Mluvil s někým cizím.",
+    "highlightedWord": "někým",
+    "answerNumber": 6
+  },
+  {
+    "sentence": "Něco mi na tom nesedí.",
+    "highlightedWord": "Něco",
+    "answerNumber": 6
+  },
+  {
+    "sentence": "Bojí se něčeho neznámého.",
+    "highlightedWord": "něčeho",
+    "answerNumber": 6
+  },
+  {
+    "sentence": "Něčemu takovému nevěřím.",
+    "highlightedWord": "něčemu",
+    "answerNumber": 6
+  },
+  {
+    "sentence": "Zabýval se něčím důležitým.",
+    "highlightedWord": "něčím",
+    "answerNumber": 6
+  },
+  {
+    "sentence": "Slyšel jsi něco zvláštního?",
+    "highlightedWord": "něco",
+    "answerNumber": 6
+  },
+  {
+    "sentence": "Kdosi stál ve tmě.",
+    "highlightedWord": "Kdosi",
+    "answerNumber": 6
+  },
+  {
+    "sentence": "Všiml si kohosi za rohem.",
+    "highlightedWord": "kohosi",
+    "answerNumber": 6
+  },
+  {
+    "sentence": "Komusi se to nelíbilo.",
+    "highlightedWord": "Komusi",
+    "answerNumber": 6
+  },
+  {
+    "sentence": "Mluvil s kýmisi lidmi.",
+    "highlightedWord": "kýmisi",
+    "answerNumber": 6
+  },
+  {
+    "sentence": "Cosi ho znepokojovalo.",
+    "highlightedWord": "Cosi",
+    "answerNumber": 6
+  },
+  {
+    "sentence": "Všiml si čehosi podivného.",
+    "highlightedWord": "čehosi",
+    "answerNumber": 6
+  },
+  {
+    "sentence": "Čemusi takovému se vyhnul.",
+    "highlightedWord": "Čemusi",
+    "answerNumber": 6
+  },
+  {
+    "sentence": "Zabýval se čímsi složitým.",
+    "highlightedWord": "čímsi",
+    "answerNumber": 6
+  },
+  {
+    "sentence": "Cosi se změnilo.",
+    "highlightedWord": "Cosi",
+    "answerNumber": 6
+  },
+  {
+    "sentence": "Leckdo tomu uvěřil.",
+    "highlightedWord": "Leckdo",
+    "answerNumber": 6
+  },
+  {
+    "sentence": "Leckomu to připadalo zvláštní.",
+    "highlightedWord": "Leckomu",
+    "answerNumber": 6
+  },
+  {
+    "sentence": "Mluvil s leckým odborníkem.",
+    "highlightedWord": "leckým",
+    "answerNumber": 6
+  },
+  {
+    "sentence": "Ledacos se o tom říká.",
+    "highlightedWord": "Ledacos",
+    "answerNumber": 6
+  },
+  {
+    "sentence": "Všiml si ledčeho.",
+    "highlightedWord": "ledčeho",
+    "answerNumber": 6
+  },
+  {
+    "sentence": "Našel nějaký dopis.",
+    "highlightedWord": "nějaký",
+    "answerNumber": 6
+  },
+  {
+    "sentence": "Viděl nějakého muže.",
+    "highlightedWord": "nějakého",
+    "answerNumber": 6
+  },
+  {
+    "sentence": "Pomohl nějakému člověku.",
+    "highlightedWord": "nějakému",
+    "answerNumber": 6
+  },
+  {
+    "sentence": "Zabýval se nějakým problémem.",
+    "highlightedWord": "nějakým",
+    "answerNumber": 6
+  },
+  {
+    "sentence": "Mluvili o nějakém řešení.",
+    "highlightedWord": "nějakém",
+    "answerNumber": 6
+  },
+  {
+    "sentence": "Jistý člověk to tvrdil.",
+    "highlightedWord": "Jistý",
+    "answerNumber": 6
+  },
+  {
+    "sentence": "Viděl jistého muže.",
+    "highlightedWord": "jistého",
+    "answerNumber": 6
+  },
+  {
+    "sentence": "Pomohl jistému známému.",
+    "highlightedWord": "jistému",
+    "answerNumber": 6
+  },
+  {
+    "sentence": "Zabýval se jistým problémem.",
+    "highlightedWord": "jistým",
+    "answerNumber": 6
+  },
+  {
+    "sentence": "Mluvili o jistém případu.",
+    "highlightedWord": "jistém",
+    "answerNumber": 6
+  },
+  {
+    "sentence": "Některý z nich odešel dřív.",
+    "highlightedWord": "Některý",
+    "answerNumber": 6
+  },
+  {
+    "sentence": "Některému z nich pomohl.",
+    "highlightedWord": "Některému",
+    "answerNumber": 6
+  },
+  {
+    "sentence": "Jakéhosi člověka jsem zahlédl u brány.",
+    "highlightedWord": "Jakéhosi",
+    "answerNumber": 6
+  },
+  {
+    "sentence": "Kterýsi z nich se opozdil.",
+    "highlightedWord": "Kterýsi",
+    "answerNumber": 6
+  },
+  {
+    "sentence": "Jacísi lidé čekali před domem.",
+    "highlightedWord": "Jacísi",
+    "answerNumber": 6
+  },
+  {
+    "sentence": "Čísi kroky se ozývaly na chodbě.",
+    "highlightedWord": "Čísi",
+    "answerNumber": 6
+  },
+  {
+    "sentence": "Jakýsi neklid visel ve vzduchu.",
+    "highlightedWord": "Jakýsi",
+    "answerNumber": 6
+  },
+  {
+    "sentence": "Nikdo tam nepřišel.",
+    "highlightedWord": "Nikdo",
+    "answerNumber": 7
+  },
+  {
+    "sentence": "Neviděl nikoho.",
+    "highlightedWord": "nikoho",
+    "answerNumber": 7
+  },
+  {
+    "sentence": "Nikomu to neřekl.",
+    "highlightedWord": "Nikomu",
+    "answerNumber": 7
+  },
+  {
+    "sentence": "Nemluvil s nikým.",
+    "highlightedWord": "nikým",
+    "answerNumber": 7
+  },
+  {
+    "sentence": "Nic se nestalo.",
+    "highlightedWord": "Nic",
+    "answerNumber": 7
+  },
+  {
+    "sentence": "Nebál se ničeho.",
+    "highlightedWord": "ničeho",
+    "answerNumber": 7
+  },
+  {
+    "sentence": "Ničemu nevěřil.",
+    "highlightedWord": "Ničemu",
+    "answerNumber": 7
+  },
+  {
+    "sentence": "Nezabýval se ničím důležitým.",
+    "highlightedWord": "ničím",
+    "answerNumber": 7
+  },
+  {
+    "sentence": "Nic ho nepřekvapilo.",
+    "highlightedWord": "Nic",
+    "answerNumber": 7
+  },
+  {
+    "sentence": "Žádný člověk nepřišel.",
+    "highlightedWord": "Žádný",
+    "answerNumber": 7
+  },
+  {
+    "sentence": "Neviděl žádného muže.",
+    "highlightedWord": "žádného",
+    "answerNumber": 7
+  },
+  {
+    "sentence": "Nepomohl žádnému studentovi.",
+    "highlightedWord": "žádnému",
+    "answerNumber": 7
+  },
+  {
+    "sentence": "Nezabýval se žádným problémem.",
+    "highlightedWord": "žádným",
+    "answerNumber": 7
+  },
+  {
+    "sentence": "Nemluvili o žádném řešení.",
+    "highlightedWord": "žádném",
+    "answerNumber": 7
+  },
+  {
+    "sentence": "Nikdo tomu nerozuměl.",
+    "highlightedWord": "Nikdo",
+    "answerNumber": 7
+  },
+  {
+    "sentence": "Neslyšel nikoho mluvit.",
+    "highlightedWord": "nikoho",
+    "answerNumber": 7
+  },
+  {
+    "sentence": "Nikomu se to nelíbilo.",
+    "highlightedWord": "Nikomu",
+    "answerNumber": 7
+  },
+  {
+    "sentence": "Nebyl nikým osloven.",
+    "highlightedWord": "nikým",
+    "answerNumber": 7
+  },
+  {
+    "sentence": "Nic mu nepomohlo.",
+    "highlightedWord": "Nic",
+    "answerNumber": 7
+  },
+  {
+    "sentence": "Nechce se ničeho vzdát.",
+    "highlightedWord": "ničeho",
+    "answerNumber": 7
+  },
+  {
+    "sentence": "Ničemu takovému nevěřím.",
+    "highlightedWord": "Ničemu",
+    "answerNumber": 7
+  },
+  {
+    "sentence": "Nezabývá se ničím novým.",
+    "highlightedWord": "ničím",
+    "answerNumber": 7
+  },
+  {
+    "sentence": "Nic se nezměnilo.",
+    "highlightedWord": "Nic",
+    "answerNumber": 7
+  },
+  {
+    "sentence": "Žádný z nich nepřišel.",
+    "highlightedWord": "Žádný",
+    "answerNumber": 7
+  },
+  {
+    "sentence": "Neznal žádného z nich.",
+    "highlightedWord": "žádného",
+    "answerNumber": 7
+  },
+  {
+    "sentence": "Nedůvěřoval žádnému řešení.",
+    "highlightedWord": "žádnému",
+    "answerNumber": 7
+  },
+  {
+    "sentence": "Neřídil se žádným pravidlem.",
+    "highlightedWord": "žádným",
+    "answerNumber": 7
+  },
+  {
+    "sentence": "Nemluvili o žádném problému.",
+    "highlightedWord": "žádném",
+    "answerNumber": 7
+  },
+  {
+    "sentence": "Nikdo ho neviděl.",
+    "highlightedWord": "Nikdo",
+    "answerNumber": 7
+  },
+  {
+    "sentence": "Nepotkal nikoho známého.",
+    "highlightedWord": "nikoho",
+    "answerNumber": 7
+  },
+  {
+    "sentence": "Nikomu nic nevysvětlil.",
+    "highlightedWord": "Nikomu",
+    "answerNumber": 7
+  },
+  {
+    "sentence": "Nebyl nikým podporován.",
+    "highlightedWord": "nikým",
+    "answerNumber": 7
+  },
+  {
+    "sentence": "Nic nám nepomohlo.",
+    "highlightedWord": "Nic",
+    "answerNumber": 7
+  },
+  {
+    "sentence": "Nebál se ničeho nového.",
+    "highlightedWord": "ničeho",
+    "answerNumber": 7
+  },
+  {
+    "sentence": "Ničemu se nevyhýbal.",
+    "highlightedWord": "Ničemu",
+    "answerNumber": 7
+  },
+  {
+    "sentence": "Nezabýval se ničím zvláštním.",
+    "highlightedWord": "ničím",
+    "answerNumber": 7
+  },
+  {
+    "sentence": "Nic ho nezastavilo.",
+    "highlightedWord": "Nic",
+    "answerNumber": 7
+  },
+  {
+    "sentence": "Žádná z těch cest nevedla správným směrem.",
+    "highlightedWord": "Žádná",
+    "answerNumber": 7
+  },
+  {
+    "sentence": "Žádnému z přítomných se to nelíbilo.",
+    "highlightedWord": "Žádnému",
+    "answerNumber": 7
+  },
+  {
+    "sentence": "Žádných výmluv už neměl dost.",
+    "highlightedWord": "Žádných",
+    "answerNumber": 7
+  }
+];
+let current = null;
+let time = 6;
+let timer = null;
+let mode = "hard";
+let correctSeries = 0;
+let audioCtx = null;
+let buttonsCreated = false;
+let waitingForNext = false;
+
+// anti-repeat controls
+let recentWords = [];
+let seriesWords = [];
+const RECENT_LIMIT = 40;
+
+const colors = ["#2563eb","#16a34a","#7c3aed","#ea580c","#dc2626","#0891b2","#92400e"];
+
+const caseLabels = {
+  1: "OSOBNÍ",
+  2: "PŘIVLASTŇOVACÍ",
+  3: "UKAZOVACÍ",
+  4: "TÁZACÍ",
+  5: "VZTAŽNÁ",
+  6: "NEURČITÁ",
+  7: "ZÁPORNÁ"
+};
+
+function getCaseLabel(answerNumber) {
+  return caseLabels[answerNumber] || "";
+}
+
+function ensureAudio() {
+  try {
+    const Ctx = window.AudioContext || window.webkitAudioContext;
+    if (!Ctx) return null;
+    if (!audioCtx) audioCtx = new Ctx();
+    if (audioCtx.state === "suspended") audioCtx.resume();
+    return audioCtx;
+  } catch (e) {
+    return null;
+  }
+}
+
+function tone(from, to, duration, vol) {
+  const ctx = ensureAudio();
+  if (!ctx) return;
+  const osc = ctx.createOscillator();
+  const gain = ctx.createGain();
+  osc.connect(gain);
+  gain.connect(ctx.destination);
+  const now = ctx.currentTime;
+  osc.frequency.setValueAtTime(from, now);
+  osc.frequency.exponentialRampToValueAtTime(to, now + duration);
+  gain.gain.setValueAtTime(0.0001, now);
+  gain.gain.exponentialRampToValueAtTime(vol, now + 0.01);
+  gain.gain.exponentialRampToValueAtTime(0.0001, now + duration);
+  osc.start(now);
+  osc.stop(now + duration);
+}
+
+function soundCorrect() { tone(700, 950, 0.16, 0.08); }
+function soundWrong() {
+  tone(260, 110, 0.22, 0.32);
+  setTimeout(() => tone(170, 80, 0.26, 0.36), 90);
+}
+function soundWin() {
+  tone(523, 659, 0.24, 0.95);
+  setTimeout(() => tone(659, 784, 0.24, 1.00), 110);
+  setTimeout(() => tone(784, 1046, 0.30, 1.00), 220);
+  setTimeout(() => tone(1046, 1318, 0.34, 1.00), 360);
+}
+function launchConfetti() {
+  const layer = document.getElementById("confetti-layer");
+  if (!layer) return;
+  layer.innerHTML = "";
+  const colors = ["#ef4444", "#f59e0b", "#22c55e", "#3b82f6", "#a855f7", "#ec4899"];
+  const total = 220;
+  for (let i = 0; i < total; i++) {
+    const el = document.createElement("div");
+    el.className = "confetti";
+    el.style.left = `${Math.random() * 100}vw`;
+    el.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+    el.style.animationDuration = `${2.8 + Math.random() * 2.2}s`;
+    el.style.animationDelay = `${Math.random() * 0.35}s`;
+    el.style.setProperty("--drift", `${-220 + Math.random() * 440}px`);
+    el.style.setProperty("--spin", `${360 + Math.random() * 1080}deg`);
+    el.style.width = `${8 + Math.random() * 8}px`;
+    el.style.height = `${10 + Math.random() * 12}px`;
+    layer.appendChild(el);
+  }
+  setTimeout(() => { layer.innerHTML = ""; }, 6000);
+}
+function menuSwitchSound() { tone(520, 620, 0.08, 0.04); }
+
+function loadRemembered() {
+  const remembered = localStorage.getItem("lovci_zajmena_profile");
+  if (!remembered) return;
+  const profile = JSON.parse(remembered);
+  document.getElementById("rememberText").innerText = `${profile.name} ${profile.surname} (${profile.className})`;
+  document.getElementById("rememberBox").classList.remove("hidden");
+  document.getElementById("formBox").classList.add("hidden");
+}
+
+function useRemembered() {
+  document.getElementById("login").dataset.useRemembered = "1";
+  start();
+}
+
+function showEditProfile() {
+  document.getElementById("rememberBox").classList.add("hidden");
+  document.getElementById("formBox").classList.remove("hidden");
+  document.getElementById("login").dataset.useRemembered = "0";
+}
+
+function createButtons() {
+  const g = document.getElementById("grid");
+  if (buttonsCreated) return;
+
+  const cases = [
+    { label: "OSOBNÍ", value: 1 },
+    { label: "PŘIVLASTŇOVACÍ", value: 2 },
+    { label: "UKAZOVACÍ", value: 3 },
+    { label: "TÁZACÍ", value: 4 },
+    { label: "VZTAŽNÁ", value: 5 },
+    { label: "NEURČITÁ", value: 6 },
+    { label: "ZÁPORNÁ", value: 7 }
+  ];
+
+  cases.forEach((item, index) => {
+    const b = document.createElement("button");
+    b.className = "btn";
+    b.style.background = colors[index];
+    b.innerText = item.label;
+    b.onclick = () => answer(item.value);
+    g.appendChild(b);
+  });
+
+  buttonsCreated = true;
+}
+
+function disableButtons(flag) {
+  document.querySelectorAll("#grid .btn").forEach(btn => btn.disabled = flag);
+}
+
+function start() {
+  mode = "hard";
+
+  let profile = null;
+  if (document.getElementById("login").dataset.useRemembered === "1") {
+    const remembered = localStorage.getItem("lovci_zajmena_profile");
+    if (remembered) profile = JSON.parse(remembered);
+  } else {
+    const name = document.getElementById("name").value.trim();
+    const surname = document.getElementById("surname").value.trim();
+    const className = document.getElementById("class").value.trim().toUpperCase();
+    if (!name || !surname || !className) {
+      alert("Vyplň jméno, příjmení i třídu.");
+      return;
+    }
+    profile = { name, surname, className };
+    localStorage.setItem("lovci_zajmena_profile", JSON.stringify(profile));
+  }
+
+  document.getElementById("login").classList.add("hidden");
+  document.getElementById("statsScreen").classList.add("hidden");
+  document.getElementById("game").classList.remove("hidden");
+
+  createButtons();
+  correctSeries = 0;
+  recentWords = [];
+  seriesWords = [];
+  nextQuestion();
+}
+
+function menu() {
+  clearInterval(timer);
+  document.getElementById("game").classList.add("hidden");
+  document.getElementById("login").classList.remove("hidden");
+  document.getElementById("result").innerHTML = "";
+  const nextBtn = document.getElementById("nextBtn"); if (nextBtn) nextBtn.classList.add("hidden");
+  document.getElementById("rememberBox").classList.add("hidden");
+  document.getElementById("formBox").classList.remove("hidden");
+  document.getElementById("login").dataset.useRemembered = "0";
+}
+
+function backToLogin() {
+  document.getElementById("statsScreen").classList.add("hidden");
+  document.getElementById("login").classList.remove("hidden");
+  document.getElementById("rememberBox").classList.add("hidden");
+  document.getElementById("formBox").classList.remove("hidden");
+  document.getElementById("login").dataset.useRemembered = "0";
+}
+
+function updateProgress() {
+  document.getElementById("progress").innerText = "ZVLÁDNUTÉ PŘÍPADY: " + correctSeries + " / 10";
+}
+
+function chooseQuestion() {
+  let candidates = db.filter(q => !recentWords.includes(String(q.highlightedWord).toLowerCase()));
+  if (mode === "hard") {
+    candidates = candidates.filter(q => !seriesWords.includes(String(q.highlightedWord).toLowerCase()));
+  }
+
+  if (candidates.length === 0) {
+    candidates = db.filter(q => mode !== "hard" || !seriesWords.includes(String(q.highlightedWord).toLowerCase()));
+  }
+  if (candidates.length === 0) {
+    candidates = db.slice();
+  }
+
+  return candidates[Math.floor(Math.random() * candidates.length)];
+}
+
+function registerWord(word) {
+  recentWords.push(String(word).toLowerCase());
+  if (recentWords.length > RECENT_LIMIT) recentWords.shift();
+  if (mode === "hard" && !seriesWords.includes(String(word).toLowerCase())) {
+    seriesWords.push(String(word).toLowerCase());
+  }
+}
+
+function escapeHtml(str) {
+  return String(str)
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#39;");
+}
+
+function highlightSentence(sentence, word) {
+  const safeSentence = String(sentence || "");
+  const safeWord = String(word || "");
+  const idx = safeSentence.indexOf(safeWord);
+  if (idx === -1 || !safeWord) return escapeHtml(safeSentence);
+
+  const before = safeSentence.slice(0, idx);
+  const match = safeSentence.slice(idx, idx + safeWord.length);
+  const after = safeSentence.slice(idx + safeWord.length);
+
+  return escapeHtml(before) + '<span class="highlight">' + escapeHtml(match) + '</span>' + escapeHtml(after);
+}
+
+function nextQuestion() {
+  clearInterval(timer);
+  waitingForNext = false;
+  disableButtons(false);
+  time = 6;
+  document.getElementById("time").innerText = time;
+  updateProgress();
+
+  current = chooseQuestion();
+  registerWord(current.highlightedWord);
+
+  document.getElementById("sentence").innerHTML = highlightSentence(current.sentence, current.highlightedWord);
+  document.getElementById("result").innerHTML = "";
+  const nextBtn = document.getElementById("nextBtn");
+  if (nextBtn) nextBtn.classList.add("hidden");
+
+  if (mode === "hard") {
+    timer = setInterval(() => {
+      time--;
+      document.getElementById("time").innerText = time;
+      if (time <= 0) fail();
+    }, 1000);
+  }
+}
+
+function answer(n) {
+  if (!current || waitingForNext) return;
+  clearInterval(timer);
+  disableButtons(true);
+
+  if (n === current.answerNumber) {
+    soundCorrect();
+    document.getElementById("result").innerText = "SPRÁVNĚ";
+    correctSeries++;
+    updateProgress();
+
+    if (correctSeries >= 10) {
+      soundWin();
+      launchConfetti();
+      document.getElementById("result").innerHTML = '<span class="win">MÁŠ JEDNIČKU</span>';
+      return;
+    }
+    setTimeout(nextQuestion, 1000);
+  } else {
+    soundWrong();
+    waitingForNext = true;
+    document.getElementById("result").innerHTML =
+      'CHYBA<br><span class="correct-answer">SPRÁVNĚ: ' + getCaseLabel(current.answerNumber) + '</span>';
+    const nextBtn = document.getElementById("nextBtn");
+    if (nextBtn) {
+      nextBtn.classList.remove("hidden");
+      nextBtn.disabled = false;
+      nextBtn.textContent = "DALŠÍ";
+    }
+    correctSeries = 0;
+    seriesWords = [];
+    updateProgress();
+  }
+}
+
+function fail() {
+  clearInterval(timer);
+  disableButtons(true);
+  soundWrong();
+  document.getElementById("result").innerText = "VYPRŠEL ČAS";
+  correctSeries = 0;
+  seriesWords = [];
+  updateProgress();
+  setTimeout(nextQuestion, 1500);
+}
+
+document.addEventListener("DOMContentLoaded", () => {
+  const nextBtn = document.getElementById("nextBtn");
+  if (nextBtn) {
+    nextBtn.addEventListener("click", () => {
+      if (!waitingForNext) return;
+      nextQuestion();
+    });
+  }
+  loadRemembered();
+});
+</script>
+</body>
+</html>
